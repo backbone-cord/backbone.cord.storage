@@ -1,7 +1,7 @@
 ;(function(root) {
 'use strict';
 
-var Backbone = root.Backbone;
+var Backbone = root.Backbone || require('backbone');
 
 root.Storage.prototype.setItemTrigger = function(key, value) {
 	// Just doing a setItem will trigger storage events on other windows but not the current one
