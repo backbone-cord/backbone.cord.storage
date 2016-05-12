@@ -1,0 +1,31 @@
+{
+  "name": "backbone.cord.storage",
+  "version": "1.0.0",
+  "description": "Plugin for backbone.cord providing data bindings for both localStorage and sessionStorage.",
+  "keywords": [
+    "backbone",
+    "backbone.cord",
+    "localStorage",
+    "sessionStorage",
+    "binding",
+    "plugin"
+  ],
+  "homepage": "https://github.com/backbone-cord/backbone.cord.storage",
+  "license": "MIT",
+  "main": [
+    "backbone.cord.storage.js"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "dependencies": {
+    "backbone.cord": ">=1.0.2"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

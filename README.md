@@ -1,2 +1,2 @@
 # backbone.cord.storage
-Plugin for backbone.cord providing bindings for localStorage and sessionStorage
+Plugin for backbone.cord providing data bindings for both localStorage and sessionStorage.
