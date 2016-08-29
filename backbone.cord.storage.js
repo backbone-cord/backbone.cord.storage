@@ -4,8 +4,10 @@
 var Backbone = root.Backbone || require('backbone');
 
 root.Storage.prototype.setItemTrigger = function(key, value) {
-	// Just doing a setItem will trigger storage events on other windows but not the current one
-	// This method will trigger on all windows as a result
+	// Just doing a localStorage.setItem will trigger storage events on other windows but not the current one
+	// Doing a sessionStorage.setItem will trigger storage events on all other windows (iframes) on the current window but not on the current window itself
+	// This method will also trigger the event on the current window
+	// http://stackoverflow.com/questions/4679023/bug-with-chromes-localstorage-implementation
 	// https://developer.mozilla.org/en-US/docs/Web/Events/storage
 	// https://developer.mozilla.org/en-US/docs/Web/API/StorageEvent
 	var evt = document.createEvent('StorageEvent');
@@ -14,8 +16,9 @@ root.Storage.prototype.setItemTrigger = function(key, value) {
 	root.dispatchEvent(evt);
 };
 
-function _storageListener(name, e) {
-	this._invokeObservers(e.key, e.newValue, name);
+function _storageListener(name, storage, e) {
+	if(e.storageArea === storage)
+		this._invokeObservers(e.key, e.newValue, name);
 }
 
 function _storagePlugin(name, prefix, storage) {
@@ -29,7 +32,7 @@ function _storagePlugin(name, prefix, storage) {
 			},
 			observe: function() {
 				if(!Object.keys(this._getObservers(null, name)).length) {
-					this._storageListener = _storageListener.bind(this, name);
+					this._storageListener = _storageListener.bind(this, name, storage);
 					root.addEventListener('storage', this._storageListener);
 				}
 			},
