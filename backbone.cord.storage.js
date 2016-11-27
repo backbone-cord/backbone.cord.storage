@@ -16,28 +16,30 @@ root.Storage.prototype.setItemTrigger = function(key, value) {
 	root.dispatchEvent(evt);
 };
 
-function _storageListener(name, storage, e) {
+function _storageListener(namespace, storage, e) {
 	if(e.storageArea === storage)
-		this._invokeObservers(e.key, e.newValue, name);
+		this._invokeObservers(e.key, e.newValue, namespace);
 }
 
 function _storagePlugin(name, prefix, storage) {
 	var prefixKey = name + 'Prefix';
+	var namespace = name;
 	var plugin = {
 		name: name,
 		scope: {
+			namespace: namespace,
 			getKey: function(key) {
 				if(key.indexOf(Backbone.Cord.config[prefixKey]) === 0)
 					return key.substr(Backbone.Cord.config[prefixKey].length);
 			},
 			observe: function() {
-				if(!Object.keys(this._getObservers(null, name)).length) {
-					this._storageListener = _storageListener.bind(this, name, storage);
+				if(!this._hasObservers(null, name)) {
+					this._storageListener = _storageListener.bind(this, namespace, storage);
 					root.addEventListener('storage', this._storageListener);
 				}
 			},
 			unobserve: function() {
-				if(!Object.keys(this._getObservers(null, name)).length)
+				if(!this._hasObservers(null, name))
 					root.removeEventListener('storage', this._storageListener);
 			},
 			getValue: function(key) {
