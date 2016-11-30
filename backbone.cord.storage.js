@@ -18,28 +18,22 @@ root.Storage.prototype.setItemTrigger = function(key, value) {
 
 function _storageListener(namespace, storage, e) {
 	if(e.storageArea === storage)
-		this._invokeObservers(e.key, e.newValue, namespace);
+		this._invokeObservers(namespace, e.key, e.newValue);
 }
 
-function _storagePlugin(name, prefix, storage) {
-	var prefixKey = name + 'Prefix';
-	var namespace = name;
+function _storagePlugin(name, namespace, storage) {
 	var plugin = {
 		name: name,
 		scope: {
 			namespace: namespace,
-			getKey: function(key) {
-				if(key.indexOf(Backbone.Cord.config[prefixKey]) === 0)
-					return key.substr(Backbone.Cord.config[prefixKey].length);
-			},
 			observe: function() {
-				if(!this._hasObservers(null, name)) {
+				if(!this._hasObservers(namespace)) {
 					this._storageListener = _storageListener.bind(this, namespace, storage);
 					root.addEventListener('storage', this._storageListener);
 				}
 			},
 			unobserve: function() {
-				if(!this._hasObservers(null, name))
+				if(!this._hasObservers(namespace))
 					root.removeEventListener('storage', this._storageListener);
 			},
 			getValue: function(key) {
@@ -53,13 +47,11 @@ function _storagePlugin(name, prefix, storage) {
 			root.removeEventListener('storage', this._storageListener);
 		}
 	};
-	plugin.config = {};
-	plugin.config[prefixKey] = prefix;
 	return plugin;
 }
 
 // Scopes for both localStorange and sessionStorage
-Backbone.Cord.plugins.push(_storagePlugin('localstoragescope', 'ls_', root.localStorage));
-Backbone.Cord.plugins.push(_storagePlugin('sessionstoragescope', 'ss_', root.sessionStorage));
+Backbone.Cord.plugins.push(_storagePlugin('localstoragescope', 'localStorage', root.localStorage));
+Backbone.Cord.plugins.push(_storagePlugin('sessionstoragescope', 'sessionStorage', root.sessionStorage));
 
 })(((typeof self === 'object' && self.self === self && self) || (typeof global === 'object' && global.global === global && global)));
