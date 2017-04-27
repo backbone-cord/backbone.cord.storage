@@ -21,37 +21,32 @@ function _storageListener(namespace, storage, e) {
 		this._invokeObservers(namespace, e.key, e.newValue);
 }
 
-function _storagePlugin(name, namespace, storage) {
-	var plugin = {
-		name: name,
-		scope: {
-			namespace: namespace,
-			observe: function() {
-				if(!this._hasObservers(namespace)) {
-					this._storageListener = _storageListener.bind(this, namespace, storage);
-					root.addEventListener('storage', this._storageListener);
-				}
-			},
-			unobserve: function() {
-				if(!this._hasObservers(namespace))
-					root.removeEventListener('storage', this._storageListener);
-			},
-			getValue: function(key) {
-				return storage.getItem(key);
-			},
-			setValue: function(key, value) {
-				storage.setItemTrigger(key, value);
+function _createStorageScope(namespace, storage) {
+	return {
+		observe: function() {
+			if(!this._hasObservers(namespace)) {
+				this._storageListener = _storageListener.bind(this, namespace, storage);
+				root.addEventListener('storage', this._storageListener);
 			}
 		},
-		remove: function() {
+		unobserve: function() {
+			if(!this._hasObservers(namespace))
+				root.removeEventListener('storage', this._storageListener);
+		},
+		getValue: function(key) {
+			return storage.getItem(key);
+		},
+		setValue: function(key, value) {
+			storage.setItemTrigger(key, value);
+		},
+		stop: function() {
 			root.removeEventListener('storage', this._storageListener);
 		}
 	};
-	return plugin;
 }
 
 // Scopes for both localStorange and sessionStorage
-Backbone.Cord.plugins.push(_storagePlugin('localstoragescope', 'localStorage', root.localStorage));
-Backbone.Cord.plugins.push(_storagePlugin('sessionstoragescope', 'sessionStorage', root.sessionStorage));
+Backbone.Cord.scopes.localstorage = _createStorageScope('localstorage', root.localStorage);
+Backbone.Cord.scopes.sessionstorage = _createStorageScope('sessionstorage', root.sessionStorage);
 
 })(((typeof self === 'object' && self.self === self && self) || (typeof global === 'object' && global.global === global && global)));
